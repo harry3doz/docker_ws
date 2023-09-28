@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  unilidar_drive:
+    image: port_noetic
+    container_name: unilidar_drive
+    network_mode: host
+    volumes:
+      - /tmp/.X11-unix/:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:/root/.Xauthority
+      - ./home/unilidar_sdk:/home/unilidar_sdk
+    tty: true
+    privileged: true
+    stdin_open: true
+    environment:
+      DISPLAY: ${DISPLAY}
+    devices:
+      - /dev/ttyUSB0
+    command: [
+      "bash", "-c", "cd /home/unilidar_sdk/unitree_lidar_ros && catkin build && source devel/setup.bash; roslaunch unitree_lidar_ros run_without_rviz.launch; exec bash"
+    ]
+  unilidar_mapping:
+    image: port_noetic
+    container_name: unilidar_mapping
+    network_mode: host
+    volumes:
+      - /tmp/.X11-unix/:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:/root/.Xauthority
+      - ./home/catkin_ws:/home/catkin_ws
+    tty: true
+    privileged: true
+    stdin_open: true
+    environment:
+      DISPLAY: ${DISPLAY}
+    devices:
+      - /dev/ttyUSB0
+    command: [
+      "bash", "-c", "cd /home/catkin_ws && catkin build && source devel/setup.bash; roslaunch --wait point_lio_unilidar mapping_unilidar.launch; exec bash"
+    ]
